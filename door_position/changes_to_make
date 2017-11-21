@@ -1,0 +1,9 @@
+to prepare initial state:
+change initial_positions file name in explorer
+uncomment create
+uncomment if i==300 save initial positions
+modify i == 300
+check input ouput filename
+check movie name
+close door 
+

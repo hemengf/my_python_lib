@@ -1,0 +1,5 @@
+roughly following http://www.petercollingridge.co.uk/book/export/html/6
+
+particle object
+loop through all particles, new position direction;
+collision, boundraries, new direction

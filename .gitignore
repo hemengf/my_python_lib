@@ -1,0 +1,6 @@
+**/*.pyc
+**/*.py~
+interference_pattern/movie/
+interference_pattern/movie2D/
+interference_pattern/movie2D2/
+wechatnomore_win64/
