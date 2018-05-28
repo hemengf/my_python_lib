@@ -29,4 +29,5 @@ def plotwithsliders(slider,buttonplus,buttonminus,ax,x,y,mycolor,pararange,parai
         #fig.canvas.draw_idle()
     for i in range(len(slider)):
         slider[i].on_changed(update)
+    return lines
 

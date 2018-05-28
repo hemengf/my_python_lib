@@ -28,12 +28,48 @@ def meandata(img,(startx,starty)=(2042,1674),R=1067,a=167,da=20,dda=1,savename="
                 data =  pl(img,(starty,startx),(endy,endx),order=0)
                 length = len(data)
             else:
-                start = time.time()
+                #start = time.time()
                 data = np.vstack((data,pl(img,(starty,startx),(endy,endx),order = 3)[:length]))
-                sys.stdout.write("averaging: %d/%d, takes %fs\r"%(i+1,len(np.arange(a,a+da,dda)),time.time()-start))
-        np.save(savename,data)
+                #sys.stdout.write('\r'+"averaging: %d/%d, takes %fs"%(i+1,len(np.arange(a,a+da,dda)),time.time()-start))
+        #np.save(savename,data)
         mdata = np.mean(data,axis=0)
-    return mdata
+        stddata = np.std(data,axis=0)
+    return mdata,stddata
+
+def symmetricmeandata(img,(startx,starty)=(2042,1674),R=1067,a=167,da=20,dda=1,savename="mdatatemp",compare='off',ref=2000):
+    """
+    symmetric version of meandata()
+
+    """
+    if os.path.exists(savename):
+        data = np.load(savename)
+        mdata = np.mean(data,axis=0)
+    else:
+        for i,angle in enumerate(np.arange(a,a+da,dda)):
+            endx = startx+np.cos(angle*np.pi/180)*R
+            endy = starty-np.sin(angle*np.pi/180)*R
+            #actually starting from not the center but from the symmetric end point
+            sstartx = 2*startx-endx
+            sstarty = 2*starty-endy
+            if i == 0:
+                data =  pl(img,(sstarty,sstartx),(endy,endx),order=0)
+                length = len(data)
+            else:
+                #start = time.time()
+                data = np.vstack((data,pl(img,(sstarty,sstartx),(endy,endx),order = 3)[:length]))
+
+            if compare == 'on' and i < int(da/dda) :
+                stddata = np.std(data,axis=0)
+                if np.sqrt(i+1)*stddata.sum()> ref:
+                    #stop stacking more angles if std is  already larger than a criterion; useful in some special cases e.g.wanna 'scan' 360 degrees to see if the profiles will be similar (concentric rings), if std is already very large before hitting 360 no need to keep profiling. the sqrt part is to account for std decrease as 1/sqrt(N)
+                    return -1,-1
+
+                #sys.stdout.write('\r'+"averaging: %d/%d, takes %fs"%(i+1,len(np.arange(a,a+da,dda)),time.time()-start))
+        #np.save(savename,data)
+        mdata = np.mean(data,axis=0)
+        stddata = np.std(data,axis=0)
+    return mdata,stddata
+
 def normalize_envelope(mdata,smoothwindow=19,splineorder=2,envelopeinterp='quadratic'):
     """
     x is the maximum range where envelop fitting is possible

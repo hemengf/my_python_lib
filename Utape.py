@@ -1,7 +1,7 @@
 from __future__ import division
 import numpy as np
 import sys
-dt = sys.argv[1]
+dt = sys.argv[1] #0.005
 while 1:    
     try:
         intv = input('intervels(pix): ')
