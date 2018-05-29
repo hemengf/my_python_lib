@@ -282,7 +282,7 @@ if __name__ == "__main__":
     hstore_lowerright = {}
     hstore_lowerleft = {}
     hstore_upperleft= {}
-    dyy,dxx = 30,30
+    dyy,dxx =50,50 
     threshold = 0.07
     white_threshold = 0.4
     #startingposition = (60,900)
