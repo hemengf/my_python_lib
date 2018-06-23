@@ -6,7 +6,8 @@ from scipy.ndimage import zoom
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 data_img = cv2.imread('sample5.tif')
-xstore = np.load('xoptstore20180514_06_46_33.npy').item()
+xstore = np.load('xoptstore_sample5.npy').item()
+print xstore
 #xstore_badtiles=np.load('xoptstore_badtiles20180513_21_22_42.npy').item()
 
 def surface_polynomial(size, coeff,(zoomfactory,zoomfactorx)):
@@ -35,5 +36,5 @@ for yy in range(0,data_img.shape[0]-dyy,dyy):
 
         X,Y =np.meshgrid(range(xx,xx+dxx,zoomfactorx),range(data_img.shape[0]-yy,data_img.shape[0]-yy-dyy,-zoomfactory))
         height = surface_polynomial((dyy/zoomfactory,dxx/zoomfactorx), xopt,(zoomfactory,zoomfactorx))
-        ax.plot_wireframe(X,Y,height,rstride=int(dxx/5),cstride=int(dyy/5))
+        ax.plot_wireframe(X,Y,height,rstride=int(dxx/1),cstride=int(dyy/1))
 plt.show()

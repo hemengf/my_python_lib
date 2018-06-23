@@ -5,8 +5,11 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import zoom
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
-data_img = cv2.imread('sample_bot.tif')
-xstore = np.load('xoptstore_bot20180529_23_06_08.npy').item()
+from scipy import interpolate
+data_img = cv2.imread('sample4.tif',0)
+data_img = data_img.astype('float64') 
+fitimg_whole = np.copy(data_img)
+xstore = np.load('./xoptstore_bot.npy').item()
 #xstore_badtiles=np.load('xoptstore_badtiles20180513_21_22_42.npy').item()
 
 def surface_polynomial(size, coeff,(zoomfactory,zoomfactorx)):
@@ -20,7 +23,8 @@ def surface_polynomial(size, coeff,(zoomfactory,zoomfactorx)):
     zz = poly(x[None,:],y[:,None])
     return zz
 
-dyy,dxx = 100,100
+#dyy,dxx =int(41*np.tan(np.pi*52/180)),41 
+dyy,dxx = 81,81 
 zoomfactory,zoomfactorx = 1,1
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -30,10 +34,16 @@ for yy in range(0,data_img.shape[0]-dyy,dyy):
         if (int(yy/dyy),int(xx/dxx)) in xstore:
             xopt = xstore[(int(yy/dyy),int(xx/dxx))]
             X,Y =np.meshgrid(range(xx,xx+dxx,zoomfactorx),range(data_img.shape[0]-yy,data_img.shape[0]-yy-dyy,-zoomfactory))
-            height = surface_polynomial((dyy/zoomfactory,dxx/zoomfactorx), xopt,(zoomfactory,zoomfactorx))
-            ax.plot_wireframe(X,Y,height,rstride=int(dxx/1),cstride=int(dyy/1))
+            height = surface_polynomial((dyy,dxx), xopt,(zoomfactory,zoomfactorx))
+
+            ax.plot_wireframe(X,Y,height,rstride=int(dyy/1),cstride=int(dxx/1))
+
+            generated_intensity = 1+np.cos((4*np.pi/0.532)*surface_polynomial((dyy/zoomfactory,dxx/zoomfactorx), xopt,(zoomfactory,zoomfactorx)))
+            generated_intensity /= generated_intensity.max()
+            generated_intensity = zoom(generated_intensity,(zoomfactory,zoomfactorx))
+            fitimg_whole[yy:yy+dyy,xx:xx+dxx] = 255*generated_intensity
         else:
             pass
             #xopt = xstore_badtiles[(int(yy/dyy),int(xx/dxx))]
-
+cv2.imwrite('fitimg_whole.tif', fitimg_whole.astype('uint8'))
 plt.show()

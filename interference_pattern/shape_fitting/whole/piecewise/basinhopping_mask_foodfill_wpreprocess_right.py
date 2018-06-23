@@ -18,8 +18,9 @@ def equalize(img_array):
     returns array with float 0-1
 
     """
-    img_array = img_array/img_array.max()
-    equalized = exposure.equalize_adapthist(img_array,kernal_size = (5,5))
+    img_array = img_array/(img_array.max()+1e-6)
+    #equalized = exposure.equalize_adapthist(img_array,kernal_size = (2,2))
+    equalized = exposure.equalize_hist(img_array)
     #equalized = img_array/img_array.max()
     return equalized 
 
@@ -28,10 +29,12 @@ def difference(data_img, generated_img,mask_patch):
     both images have to be 0-1float
 
     """
-    data_img = gaussian_filter(data_img,sigma=0)
-    generated_img = gaussian_filter(generated_img, sigma=0)
+    data_img = gaussian_filter(data_img,sigma=(0.3,0.3))
+    generated_img = gaussian_filter(generated_img, sigma=(0,0))
+    #plt.imshow(data_img)
+    #plt.show()
     diff_value = np.sum(mask_patch*(data_img-generated_img)**2)
-    diff_value /= (mask_patch.sum())#percentage of white area
+    diff_value /= (mask_patch.sum())
     return diff_value
 
 def surface_polynomial(size, coeff,(zoomfactory,zoomfactorx)):
@@ -58,8 +61,8 @@ def nl(coeff, data_img,(zoomfactory,zoomfactorx),mask_patch):
     return difference(data_img, expected,mask_patch)
 
 def accept_test(f_new,x_new,f_old,x_old):
-    return True
-    if abs(x_new[3])>0.05 or abs(x_new[4])>0.05:
+    #return True
+    if x_old[0]>0 or x_old[1]>0 or x_new[0]>0 or x_new[1]>0:
         return False
     else:
         return True
@@ -145,7 +148,9 @@ def fittile(tile, dxx,dyy,zoomfactorx, zoomfactory, data_img, mask_img,xstore, a
         #print 'found upperright'
         left = xstore[(int(yy/dyy)-1,int(xx/dxx)+1)]
         initcoeff_extendlist.append(np.array([left[0],left[1],left[2],-2*left[0]*dxx+left[2]*dyy+left[3],-left[2]*dxx+2*left[1]*dyy+left[4],left[0]*dxx*dxx+left[1]*dyy*dyy-left[2]*dxx*dyy-left[3]*dxx+left[4]*dyy+left[5]]))
-        """
+
+
+    """
 #######################################################
     if (int(yy/dyy)-2,int(xx/dxx)) in xstore:
         #print 'found up'
@@ -232,9 +237,21 @@ def fittile(tile, dxx,dyy,zoomfactorx, zoomfactory, data_img, mask_img,xstore, a
         initcoeff = initcoeff_linear
         print initcoeff
     iternumber = 0
+
+    """
+    # stripe equation: y = -a/b x, need to blur image in this direction
+    rows, cols = data_patch.shape
+    dst =  np.zeros((rows, cols))
+    for tx  in range(-1,1):
+        ty = -(initcoeff[3]/initcoeff[4])*tx
+        M = np.float64([[1,0,tx],[0,1,ty]])
+        dst += cv2.warpAffine(data_patch, M, (cols, rows))
+    data_patch = dst/len(range(-1,1))
+    """
+
     while 1:
         #print 'iternumber =', iternumber,'for',yy,xx
-        result = basinhopping(nl, initcoeff, niter = 15, T=0.001, stepsize=5e-4, interval=50,accept_test=accept_test,minimizer_kwargs={'method': 'Nelder-Mead', 'args': (data_patch,(zoomfactory,zoomfactorx), mask_patch)}, disp=False, callback=callback)
+        result = basinhopping(nl, initcoeff, niter = 5, T=0.001, stepsize=5e-5, interval=50,accept_test=accept_test,minimizer_kwargs={'method': 'Nelder-Mead', 'args': (data_patch,(zoomfactory,zoomfactorx), mask_patch)}, disp=False, callback=callback)
         print result.fun
         if result.fun <threshold:
             xopt = result.x
@@ -242,7 +259,7 @@ def fittile(tile, dxx,dyy,zoomfactorx, zoomfactory, data_img, mask_img,xstore, a
         else:
             initcoeff = result.x
             iternumber+=1
-            if iternumber == 10:
+            if iternumber == 5:
                 xopt = initcoeff_extend 
                 break
     goodness = result.fun
@@ -268,14 +285,30 @@ if __name__ == "__main__":
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     N = 100 #a,b value resolution; a, b linear term coeff
-    sample_size = 0.14 #a, b value range
-    abquadrant = 2
-    data_img = cv2.imread('sample_right.tif', 0)
+    sample_size = 0.1 #a, b value range
+    abquadrant = 3
+    offset = 0 
+    data_img = cv2.imread('sample4.tif', 0)[offset:,:]
+    data_img = data_img.astype('float64')
     mask_img = cv2.imread('mask_right.tif', 0)
-
-    data_img = data_img.astype('float')
-    mask_img = mask_img.astype('float')
+    mask_img= mask_img.astype('float64')[offset:,:]
     mask_img /= 255.
+
+    rows, cols = data_img.shape
+    dst =  np.zeros((rows, cols))
+
+    """
+
+    for tx  in range(-1,2):
+        ty = tx
+        M = np.float64([[1,0,tx],[0,1,ty]])
+        dst += cv2.warpAffine(data_img, M, (cols, rows))
+    dst /= len(range(-1,2))
+    data_img[:,3086:3850] = dst[:,3086:3850]
+    """
+
+    cv2.imwrite('blurred.tif', data_img)
+
     fitimg = np.copy(data_img)
     xstore = {}
     xstore_badtiles = {}
@@ -283,11 +316,10 @@ if __name__ == "__main__":
     hstore_lowerright = {}
     hstore_lowerleft = {}
     hstore_upperleft= {}
-    dyy,dxx =60,60 
-    threshold = 0.06
-    white_threshold = 0.2
-    #startingposition = (60,900)
-    startingposition = (1200,54)
+    dyy,dxx =int(41*np.tan(np.pi*52/180)),41 
+    threshold = 0.085
+    white_threshold = 0.4
+    startingposition = (1244,2716)
     startingtile =  (int(startingposition[0]/dyy),int(startingposition[1]/dxx))
     zoomfactory,zoomfactorx = 1,1
     tilequeue = find_tilequeue8([startingtile])
@@ -425,14 +457,14 @@ if __name__ == "__main__":
         else:
             xstore_badtiles[(int(yy/dyy),int(xx/dxx))]=xopt
             print (int(yy/dyy),int(xx/dxx)), 'is a bad tile'
-        #X,Y =np.meshgrid(range(xx,xx+dxx,zoomfactorx),range(data_img.shape[0]-yy,data_img.shape[0]-yy-dyy,-zoomfactory))
-        #ax.plot_wireframe(X,Y,height,rstride=int(dxx/2),cstride=int(dyy/2))
-        #ax.set_aspect('equal')
-        #plt.draw()
-        #plt.pause(0.01)
+        X,Y =np.meshgrid(range(xx,xx+dxx,zoomfactorx),range(data_img.shape[0]-yy,data_img.shape[0]-yy-dyy,-zoomfactory))
+        ax.plot_wireframe(X,Y,height,rstride=int(dyy/2),cstride=int(dxx/2))
+        ax.set_aspect('equal')
+        plt.draw()
+        plt.pause(0.01)
         cv2.imwrite('fitimg_right.tif', fitimg.astype('uint8'))
         print '\n'
-    np.save('xoptstore_right'+strftime("%Y%m%d_%H_%M_%S",localtime()),xstore)
+    np.save('xoptstore_right',xstore)
     #np.save('xoptstore_badtiles'+strftime("%Y%m%d_%H_%M_%S",localtime()),xstore_badtiles)
     print 'time used', time.time()-start, 's'
     print 'finished'

@@ -98,6 +98,7 @@ if __name__ == "__main__":
     sample_size = 0.05#a, b value range
     start = time.time()
     data_img = cv2.imread('sample.tif', 0)
+    data_img = data_img.astype('float64')
     fitimg = np.copy(data_img)
     xstore = {}
     xstore_badtiles = {}

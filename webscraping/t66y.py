@@ -44,6 +44,10 @@ for page in range(1,50):
                     '襪',\
                     '小島',\
                     '神纳花',\
+                    '篠田',\
+                    'Ayumi',\
+                    'trans',\
+                    '变性',\
                     #'FHD',\
                     'EndofKeywords'\
                     ]
