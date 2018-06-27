@@ -8,10 +8,18 @@ from matplotlib import cm
 from scipy import interpolate
 data_img = cv2.imread('sample4.tif',0)
 data_img = data_img.astype('float64') 
-cl_img = cv2.imread('cl.tif',0)
-fitimg_whole = np.copy(data_img)
 xstore = np.load('./xoptstore_bot.npy').item()
-#xstore_badtiles=np.load('xoptstore_badtiles20180513_21_22_42.npy').item()
+xstorebot = np.load('./xoptstore_bot.npy').item()
+xstoreright = np.load('./xoptstore_right.npy').item()
+xstoreleft = np.load('./xoptstore_left.npy').item()
+xstoretopright= np.load('./xoptstore_top_right.npy').item()
+xstoretopleft= np.load('./xoptstore_top_left.npy').item()
+cl_img = cv2.imread('cl.tif',0)
+cl2_img = cv2.imread('mask_bot_v2.tif',0)
+fitimg_whole = np.copy(data_img)
+
+cl2_img = cl2_img.astype('float64') 
+cl2_img /= 255.
 
 def surface_polynomial(size, coeff,(zoomfactory,zoomfactorx)):
     def poly(x, y):
@@ -25,26 +33,39 @@ def surface_polynomial(size, coeff,(zoomfactory,zoomfactorx)):
     return zz
 
 #dyy,dxx =int(41*np.tan(np.pi*52/180)),41 
-dyy,dxx = 81,81 
-zoomfactory,zoomfactorx = 1,1
-fig = plt.figure()
+floor = -89
+fig = plt.figure(figsize=(8,8))
 ax = fig.add_subplot(111, projection='3d')
-ax.set_aspect('equal','box')
-ax.set_zlim(-55,10)
+ax.set_aspect(adjustable='datalim',aspect='equal')
+ax.set_zlim(floor,0)
+width = 0.8
+dd=80
+ddd=20
+
 xxx = []
 yyy = []
 zzz = []
+
+for i in range(0,cl_img.shape[0],ddd):
+    for j in range(0,cl_img.shape[1],ddd):
+        if cl_img[i,j] == 255:
+            xxx.append(j)
+            yyy.append(i)
+            zzz.append(floor)
+#bot
+dyy,dxx = 81,81 
+zoomfactory,zoomfactorx = 1,1
 for yy in range(0,data_img.shape[0]-dyy,dyy):
     for xx in range(0,data_img.shape[1]-dxx,dxx):#xx,yy starting upper left corner of patch
         if (int(yy/dyy),int(xx/dxx)) in xstore:
             xopt = xstore[(int(yy/dyy),int(xx/dxx))]
             X,Y =np.meshgrid(range(xx,xx+dxx,zoomfactorx),range(yy,yy+dyy,zoomfactory))
             height = surface_polynomial((dyy,dxx), xopt,(zoomfactory,zoomfactorx))
-            xxx.append(xx)
-            yyy.append(yy)
-            zzz.append(height[0,0])
+            xxx+=list(X.flat[::dd])
+            yyy+=list(Y.flat[::dd])
+            zzz+=list(height.flat[::dd])
 
-            ax.plot_wireframe(X,Y,height,rstride=int(dyy/1),cstride=int(dxx/1))
+            ax.plot_wireframe(X,Y,height,rstride=int(dyy/1),cstride=int(dxx/1),lw=width)
 
             generated_intensity = 1+np.cos((4*np.pi/0.532)*surface_polynomial((dyy/zoomfactory,dxx/zoomfactorx), xopt,(zoomfactory,zoomfactorx)))
             generated_intensity /= generated_intensity.max()
@@ -53,18 +74,20 @@ for yy in range(0,data_img.shape[0]-dyy,dyy):
         else:
             pass
             #xopt = xstore_badtiles[(int(yy/dyy),int(xx/dxx))]
-for i in range(0,cl_img.shape[0],10):
-    for j in range(0,cl_img.shape[1],10):
-        if cl_img[i,j] == 255:
-            xxx.append(j)
-            yyy.append(i)
-            zzz.append(-55)
-
-xstart,xend = 1698,1942
-ystart,yend = 726,2323
+ 
+#xstart,xend = 1698,1942
+#ystart,yend = 1726,2323
+xstart,xend = 0,data_img.shape[1] 
+ystart,yend = 0,data_img.shape[0] 
+print 'interpolating'
 f = interpolate.interp2d(xxx,yyy,zzz,kind='quintic')
+print 'finish'
 XX,YY = np.meshgrid(range(xstart,xend),range(ystart,yend))
 ZZ = f(range(xstart,xend),range(ystart,yend))
-ax.plot_wireframe(XX,YY,ZZ,rstride =80, cstride = 80, colors='C1')
+ZZ*=cl2_img[ystart:yend,xstart:xend]
+ZZ[ZZ == 0] =np.nan
+ZZ[:,:300] = np.nan
+ax.plot_wireframe(XX,YY,ZZ,rstride =80, cstride = 80, colors='k',lw=0.4)
+#ax.contour3D(XX,YY,ZZ,50,cmap='binary')
 cv2.imwrite('fitimg_whole.tif', fitimg_whole.astype('uint8'))
 plt.show()

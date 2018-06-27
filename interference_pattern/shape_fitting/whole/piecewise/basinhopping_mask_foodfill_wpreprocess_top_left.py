@@ -246,7 +246,7 @@ def fittile(tile, dxx,dyy,zoomfactorx, zoomfactory, data_img, mask_img,xstore, a
 
     while 1:
         #print 'iternumber =', iternumber,'for',yy,xx
-        result = basinhopping(nl, initcoeff, niter = 8, T=0.001, stepsize=5e-4, interval=50,accept_test=accept_test,minimizer_kwargs={'method': 'Nelder-Mead', 'args': (data_patch,(zoomfactory,zoomfactorx), mask_patch)}, disp=False, callback=callback)
+        result = basinhopping(nl, initcoeff, niter = 5, T=0.001, stepsize=5e-4, interval=50,accept_test=accept_test,minimizer_kwargs={'method': 'Nelder-Mead', 'args': (data_patch,(zoomfactory,zoomfactorx), mask_patch)}, disp=False, callback=callback)
         print result.fun
         if result.fun <threshold:
             xopt = result.x
