@@ -228,7 +228,7 @@ if os.path.exists('./znew.npy'):
     znew*=(thin_img).T
     znew*=(cl2_img).T
     znew[znew == 0] =np.nan
-    znew[:,:350] = np.nan
+    znew[:,:300] = np.nan
     ax.plot_wireframe(xnew,ynew,znew,rstride =60, cstride = 60, colors='k',lw = 0.4)
     #ax.plot_surface(xnew,ynew,znew,rstride=40,cstride=40,lw=0,cmap = 'RdBu',norm= mpl.colors.Normalize(vmin=-90,vmax=1))
 else:
@@ -276,7 +276,7 @@ ax.plot(x,y, 'k',zs=floor)
 #ax.scatter(x_edge,y_edge,z_edge,c='k',s=0.01)
 
 #ax.view_init(azim=-122,elev=75)
-ax.view_init(azim=122,elev=72)
+ax.view_init(azim=128,elev=75)
 plt.axis('off')
 plt.tight_layout()
 #cv2.imwrite('fitimg_whole.tif', fitimg_whole.astype('uint8'))
