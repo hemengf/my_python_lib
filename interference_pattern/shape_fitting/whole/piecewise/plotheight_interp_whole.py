@@ -277,7 +277,7 @@ ax.plot(x,y, 'k',zs=floor)
 
 #ax.view_init(azim=-122,elev=75)
 ax.view_init(azim=128,elev=75)
-plt.axis('off')
+#plt.axis('off')
 plt.tight_layout()
 #cv2.imwrite('fitimg_whole.tif', fitimg_whole.astype('uint8'))
 plt.show()

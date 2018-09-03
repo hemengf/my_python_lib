@@ -25,7 +25,7 @@ def surface_polynomial(size, coeff,(zoomfactory,zoomfactorx)):
     zz = poly(x[None,:],y[:,None])
     return zz
 
-fig = plt.figure()
+fig = plt.figure(figsize=(7,7))
 ax = fig.add_subplot(111, projection='3d')
 #ax.set_aspect('equal','box')
 
@@ -74,8 +74,8 @@ dyy,dxx =int(42*np.tan(np.pi*53/180)),42
 zoomfactory,zoomfactorx = 1,1
 for yy in range(0,data_img.shape[0]-dyy,dyy):
     for xx in range(0,data_img.shape[1]-dxx,dxx):#xx,yy starting upper left corner of patch
-        if xx>1415:
-            continue
+        #if xx>1430:
+            #continue
         if (int(yy/dyy),int(xx/dxx)) in xstoreleft:
             xopt = xstoreleft[(int(yy/dyy),int(xx/dxx))]
             X,Y =np.meshgrid(range(xx,xx+dxx,zoomfactorx),range(data_img.shape[0]-yy,data_img.shape[0]-yy-dyy,-zoomfactory))
@@ -131,5 +131,5 @@ for yy in range(0,data_img.shape[0]-dyy,dyy):
             pass
             #xopt = xstore_badtiles[(int(yy/dyy),int(xx/dxx))]
 
-cv2.imwrite('fitimg_whole.tif', fitimg_whole.astype('uint8'))
+#cv2.imwrite('fitimg_whole.tif', fitimg_whole.astype('uint8'))
 plt.show()
