@@ -56,12 +56,12 @@ def surface_polynomial(size, coeff,(zoomfactory,zoomfactorx)):
     return zz
 
 fig = plt.figure(figsize=(7.5,7.5))
-#ax = fig.add_subplot(111, projection='3d')
-ax = fig.add_subplot(111)
+ax = fig.add_subplot(111, projection='3d')
+#ax = fig.add_subplot(111)
 #ax.set_aspect(aspect='equal')
-#ax.set_zlim(1.5*floor,-0.5*floor)
-#ax.set_xlim(0,data_img.shape[1])
-#ax.set_ylim(0,data_img.shape[0])
+ax.set_zlim(1.5*floor,-0.5*floor)
+ax.set_xlim(0,data_img.shape[1])
+ax.set_ylim(0,data_img.shape[0])
 width = 0.8
 
 xxx = []
@@ -287,7 +287,7 @@ for j in range(0,cl_img.shape[1],ddd):
             y.append(i)
             break
     #ptty(j,cl_img.shape[1]/ddd,1)
-#ax.plot(x,y, 'C1',zs=floor)
+ax.plot(x,y, 'k',zs=floor)
 
 
 #x_edge=[]
@@ -304,7 +304,7 @@ for j in range(0,cl_img.shape[1],ddd):
 
 print 'No.of points:', len(yyy)
 print 'Longitudinal slicing...'
-for slicing in range(0,2100,70): 
+for slicing in range(0,4200,70): 
 #for slicing in (1500,1600,1700): 
     yyyslice = [yyy[i] for i in range(len(xxx)) if xxx[i]==slicing]
     zzzslice = [zzz[i] for i in range(len(xxx)) if xxx[i]==slicing]
@@ -328,8 +328,8 @@ for slicing in range(0,2100,70):
 
     #ax.scatter(yyyslice,zzzslice,s=8)
     yyynew = np.arange(min(yyyslice),max(yyyslice))
-    #ax.plot(ys=yyynew,zs=f(yyynew),xs=len(yyynew)*[slicing],zdir='z',color="C1")
-    ax.plot(yyynew,f(yyynew))
+    ax.plot(ys=yyynew,zs=f(yyynew),xs=len(yyynew)*[slicing],zdir='z',color="k",linewidth=0.8)
+    #ax.plot(yyynew,f(yyynew))
     yyyinterp.extend(yyynew)
     zzzinterp.extend(f(yyynew))
     xxxinterp.extend(len(yyynew)*[slicing])
@@ -358,7 +358,7 @@ for i in range(0,cl_img.shape[0],ddd):
 
 #ax.plot(x,y, 'C1',zs=floor)
 print 'Transverse slicing...'
-for slicing in range(300,2800,500): 
+for slicing in range(300,2800,150): 
     xxxslice = [xxxinterp[i] for i in range(len(yyyinterp)) if yyyinterp[i]==slicing]
     zzzslice = [zzzinterp[i] for i in range(len(yyyinterp)) if yyyinterp[i]==slicing]
     if len(xxxslice)<4:
@@ -387,10 +387,14 @@ for slicing in range(300,2800,500):
 #
     #ax.scatter(yyyslice,zzzslice,s=5)
     xxxnew = np.arange(min(xxxslice[::]),max(xxxslice[::]))
-    #ax.plot(xs=xxxnew,zs=f(xxxnew),ys=len(xxxnew)*[slicing],zdir='z',color="C0")
+    ax.plot(xs=xxxnew,zs=f(xxxnew),ys=len(xxxnew)*[slicing],zdir='z',color="k",linewidth=.5)
 
 plt.tight_layout()
 plt.axis('off')
+
+#for i in range(1,180): 
+#    ax.view_init(azim=60+2*i,elev=60)
+#    plt.savefig('./movie/%d'%i+'.tif')
 
 #cv2.imwrite('fitimg_whole.tif', fitimg_whole.astype('uint8'))
 plt.show()

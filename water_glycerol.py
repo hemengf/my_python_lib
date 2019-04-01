@@ -17,7 +17,7 @@ def glycerol_mass(T,target_viscosity=200):
     return x
 
 Temperature = 22.5
-Target_viscosity = 50 
+Target_viscosity = 100 
 
 
 print 'glycerol mass fraction %0.3f%%'%(glycerol_mass(Temperature,Target_viscosity)[0]*100)

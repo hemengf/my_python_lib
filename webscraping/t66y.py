@@ -26,27 +26,39 @@ for page in range(1,50):
             url =  'http://t66y.com/'+tr.find('td',{'class','tal'}).find('a').get('href')
             s = tr.find('td',{'class','tal'}).get_text().encode('utf8')
             keywords = ['Beginningofkeywords',\
+                    'Shizuka',\
+                    '管野',\
+                    '菅野',\
                     '佐々木',\
                     '佐佐木',\
                     'sasaki',\
                     'Sasaki',\
-                    '白木',\
+                    'Rina',\
+                    'Ishihara',\
+                    '石原莉奈',\
+                    #'白木',\
                     '松岡　ちな',\
                     '春原未来',\
                     'Chanel',\
                     'Karla Kush',\
+                    'Karter',\
+                    'Sophie Dee',\
                     'pantyhose',\
                     'Pantyhose',\
-                    'Stockings',\
-                    '絲襪',\
-                    '丝袜',\
-                    '黑丝',\
-                    '襪',\
+                    'nylon',\
+                    '1080',\
+                    #'Stockings',\
+                    #'絲襪',\
+                    #'丝袜',\
+                    #'黑丝',\
+                    #'襪',\
                     '小島',\
                     '神纳花',\
                     '篠田',\
                     'Ayumi',\
                     'trans',\
+                    'ts',\
+                    '妖',\
                     '变性',\
                     #'FHD',\
                     'EndofKeywords'\
