@@ -11,6 +11,7 @@ def shape_function(x):
     #return np.exp(-0.00002*((x+250)**2)) 
     #return -0.000008*(x**2)+ float(sys.argv[1])
     return 0.00000001*x + float(sys.argv[1])
+    #return 0.00000001*x +68.362
 
 
 #@profile
@@ -115,7 +116,8 @@ if __name__ == "__main__":
     center_array = np.empty((framenumber, ))
     coordinates = np.linspace(-pltlength, pltlength, pltnumber)
     intensity = np.empty((pltnumber, ))
-    for theta in np.linspace(0.,0.06,framenumber):
+    intensity2 = np.empty((pltnumber, ))
+    for theta in np.linspace(0.,0.0416,framenumber):
         i += 1
         #coordinates = np.array(list(product(np.linspace(-pltlength,pltlength,pltnumber), np.linspace(-pltlength, pltlength, pltnumber))))
         q = 0
@@ -125,6 +127,10 @@ if __name__ == "__main__":
                     n1 = 1.5,\
                     n2 = 1)
             intensity[q] = pattern(opd)
+
+            opd2= 2*68.362*np.cos(np.arcsin(1.5*np.sin(theta)))# from simple formula 2nhcos(j) for air gap for sanity check; should be close
+            intensity2[q] = pattern(opd2)
+
             q+=1
             #opd_expected = 2*shape_function(0)*np.cos(np.arcsin(np.sin(angle-0.0000001)*1.5)+0.0000001)
             #print pattern(opd)
@@ -143,8 +149,9 @@ if __name__ == "__main__":
         ax.set_xlabel('$x,\mu m$')
         ax.set_ylim(0,2.5)
         ax.plot(coordinates, intensity)
+        #ax.plot(coordinates[int(len(coordinates)/2):], intensity2[int(len(coordinates)/2):],'r') #for sanity check
         ax.text(0, 2.2, r'$rotated : %.4f rad$'%theta, fontsize=15)
-        dirname = "./movie_test/"
+        dirname = "./movie/"
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         plt.savefig(dirname+'{:4.0f}'.format(i)+'.tif')

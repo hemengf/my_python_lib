@@ -59,9 +59,9 @@ fig = plt.figure(figsize=(7.5,7.5))
 ax = fig.add_subplot(111, projection='3d')
 #ax = fig.add_subplot(111)
 #ax.set_aspect(aspect='equal')
-ax.set_zlim(1.5*floor,-0.5*floor)
+ax.set_zlim(3*floor,-1*floor)
 ax.set_xlim(0,data_img.shape[1])
-ax.set_ylim(0,data_img.shape[0])
+ax.set_ylim(-1000,data_img.shape[1]-1000)
 width = 0.8
 
 xxx = []
@@ -390,11 +390,11 @@ for slicing in range(300,2800,150):
     ax.plot(xs=xxxnew,zs=f(xxxnew),ys=len(xxxnew)*[slicing],zdir='z',color="k",linewidth=.5)
 
 plt.tight_layout()
-plt.axis('off')
+#plt.axis('off')
 
-#for i in range(1,180): 
-#    ax.view_init(azim=60+2*i,elev=60)
-#    plt.savefig('./movie/%d'%i+'.tif')
+#for i in range(1,240): 
+#    ax.view_init(azim=60+1.5*i,elev=60)
+#    plt.savefig('./movie/%d'%i+'.tif',dpi=100)
 
 #cv2.imwrite('fitimg_whole.tif', fitimg_whole.astype('uint8'))
 plt.show()

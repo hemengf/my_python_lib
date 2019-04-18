@@ -4,13 +4,13 @@ import scipy.spatial.distance
 import partial_derivative
 import math
 
-@profile
+#@profile
 def shape_function(x,y):
     #return np.exp(-0.00002*((x+250)**2+y**2)) + np.exp(-0.00002*((x-250)**2+y**2))+100
-    return 0.000005*(x**2+y**2)+68
+    return 0.000005*(x**2+y**2)+68.1
     #return 0.00000001*x + 68
 
-@profile
+#@profile
 def find_k_refracting(k_incident, x1, n1,n2):
     # x1 in the form [x1,y1]
     gradient = partial_derivative.partial_derivative(shape_function, *x1)
@@ -39,7 +39,7 @@ def find_k_refracting(k_incident, x1, n1,n2):
     #print "k_refracting = ", k_refracting
     return k_refracting
 
-@profile
+#@profile
 def find_x0(k_incident, x1, n1,n2):
 #    def Fx(x):
 #        k_refracting = find_k_refracting(k_incident, x, n1, n2)
@@ -56,7 +56,7 @@ def find_x0(k_incident, x1, n1,n2):
     x0 = sol.x
     return x0
 
-@profile
+#@profile
 def optical_path_diff(k_incident, x1, n1,n2):
     x0 = find_x0(k_incident, x1, n1, n2)
     p0 = np.empty((3,))
@@ -90,7 +90,7 @@ def optical_path_diff(k_incident, x1, n1,n2):
     OPD = OPD_part2-OPD_part1
     return OPD
 
-@profile
+#@profile
 def pattern(opd):
     intensity = 1+np.cos((2*np.pi/0.532)*opd)
     return intensity
@@ -110,11 +110,11 @@ if __name__ == "__main__":
     print "starting..."
     i = 0
     phi = 0
-    framenumber =1 
-    for theta in np.linspace(0.,0.1,framenumber):
+    framenumber = 50
+    for theta in np.linspace(0.,0.065,framenumber):
         i += 1
         pltnumber = 100 
-        pltlength = 350
+        pltlength = 300
         coordinates = np.array(list(product(np.linspace(-pltlength,pltlength,pltnumber), np.linspace(-pltlength, pltlength, pltnumber))))
         q = 0
         intensity = np.zeros((coordinates.shape[0], ))
@@ -131,22 +131,26 @@ if __name__ == "__main__":
         X = coordinates[:,0].reshape((pltnumber,pltnumber))
         Y = coordinates[:,1].reshape((pltnumber,pltnumber))
         Z = intensity.reshape((pltnumber, pltnumber))
-        fig = plt.figure(num=None, figsize=(8, 7), dpi=100, facecolor='w', edgecolor='k')
+        fig = plt.figure(num=None, figsize=(6, 6), dpi=60, facecolor='w', edgecolor='k')
         ax = fig.add_subplot(111, projection='3d')
-        ax.set_xlabel('$x,\mu m$')
-        ax.set_ylabel('$y,\mu m$')
-        ax.set_zlim(0,4)
-        ax.set_zticks([0,2,4])
-        ax.plot_wireframe(X,Y,Z)
-        ax.elev = 80
-        ax.azim = -63
+        #ax.set_xlabel('$x,\mu m$')
+        #ax.set_ylabel('$y,\mu m$')
+        #ax.set_zlim(0,4)
+        #ax.set_zticks([0,2,4])
+        ax.plot_wireframe(X,Y,Z,linewidth=0.6, color='k',ccount=80,rcount=80)
+        ax.elev = 85
+        ax.azim = 0
         #ax.text(0, 2.2, r'$rotated : %.4f rad$'%theta, fontsize=15)
-        dirname = "./movie2D3/"
+        dirname = "./movie2D2/"
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        plt.savefig(dirname+'{:4.0f}'.format(i)+'.tif')
+        plt.tight_layout()
+        plt.axis('off')
+        #plt.show()
+        plt.savefig(dirname+'{:4.0f}'.format(i)+'.tif',bbox_inches='tight',pad_inches=0)
         plt.close()
         progressbar.progressbar_tty(i, framenumber, 1)
+
     print "finished!"
     print(Fore.CYAN)
     print "Total running time:", time.time()-start, 'seconds'

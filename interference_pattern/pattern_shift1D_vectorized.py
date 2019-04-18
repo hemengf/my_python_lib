@@ -4,10 +4,10 @@ import scipy.optimize
 import scipy.spatial.distance
 
 def shape_function(x):
-    return 0.000005*(x**2)+50
+    return 0.000005*(x**2)+68
     #return 0.00000001*x + 68
 
-@profile
+#@profile
 def find_k_refracting(k_incident, x1, n1,n2):
     #n = np.array([[-derivative(shape_function, x, dx=1e-6), 1]for x in x1])
      #above method in creating n is too slow
@@ -34,7 +34,7 @@ def find_k_refracting(k_incident, x1, n1,n2):
     k_refracting = np.tile(r*k_incident,(len(x1), 1)) + n*factor[:,np.newaxis]
     return k_refracting
 
-@profile
+#@profile
 def find_x0(k_incident, x1, n1,n2):
     #def g(x):
     #    k_refracting = find_k_refracting(k_incident, x, n1, n2)
@@ -47,7 +47,7 @@ def find_x0(k_incident, x1, n1,n2):
     x0 = scipy.optimize.newton_krylov(F,x1, f_tol = 1e-3) 
     return x0
 
-@profile
+#@profile
 def optical_path_diff(k_incident, x1, n1,n2):
     x0 = find_x0(k_incident, x1, n1, n2)
     p0 = np.empty((len(x1),2))
@@ -100,11 +100,11 @@ if __name__ == "__main__":
     start = time.time()
     print "starting..."
     i = 0
-    framenumber = 1
+    framenumber = 50
     pltnumber = 300
     pltlength = 500
     detecting_range = np.linspace(-pltlength,pltlength,pltnumber)
-    for angle in np.linspace(0,0.06,framenumber):
+    for angle in np.linspace(0,0.0625,framenumber):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         i += 1
@@ -119,7 +119,7 @@ if __name__ == "__main__":
         plt.ylim((0,2.5))
         ax.set_xlabel('$\mu m$')
         ax.text(0, 2.2, r'$rotated : %.4f rad$'%angle, fontsize=15)
-        dirname = "./movie_test/"
+        dirname = "./movie/"
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         plt.savefig(dirname+'{:4.0f}'.format(i)+'.tif')

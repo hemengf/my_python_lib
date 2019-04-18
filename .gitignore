@@ -1,5 +1,6 @@
 **/*.pyc
 **/*.py~
+**/movie
 interference_pattern/movie/
 interference_pattern/movie2D/
 interference_pattern/movie2D2/
