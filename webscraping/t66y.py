@@ -42,11 +42,13 @@ for page in range(1,50):
                     'Chanel',\
                     'Karla Kush',\
                     'Karter',\
+                    'Carter',\
                     'Sophie Dee',\
-                    'pantyhose',\
-                    'Pantyhose',\
+                    'Madison Ivy',\
+                    #'pantyhose',\
+                    #'Pantyhose',\
                     'nylon',\
-                    '1080',\
+                    #'1080',\
                     #'Stockings',\
                     #'絲襪',\
                     #'丝袜',\
@@ -57,10 +59,11 @@ for page in range(1,50):
                     '篠田',\
                     'Ayumi',\
                     'trans',\
-                    'ts',\
+                    #'ts',\
                     '妖',\
                     '变性',\
                     #'FHD',\
+                    'Butt3rflyforu',\
                     'EndofKeywords'\
                     ]
                     
